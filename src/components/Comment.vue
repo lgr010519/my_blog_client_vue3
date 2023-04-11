@@ -33,6 +33,7 @@ watch(() => props.commentSuccess, (newVal) => {
 	}
 })
 </script>
+
 <template>
 	<div class="clearfix">
 		<el-input
@@ -46,6 +47,7 @@ watch(() => props.commentSuccess, (newVal) => {
 		<el-button @click="submit" class="comment-btn" type="primary">评论</el-button>
 	</div>
 </template>
+
 <style lang="less" scoped>
 .comment-input {
 	padding: 0 0.42667rem;

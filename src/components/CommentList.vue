@@ -61,6 +61,7 @@ const ok = async () => {
 	}
 }
 </script>
+
 <template>
 	<div class="comment-list">
 		<div class="comment-item">
@@ -125,6 +126,7 @@ const ok = async () => {
 		</el-dialog>
 	</div>
 </template>
+
 <style lang="less" scoped>
 .comment-item {
 	padding-bottom: 0.53333rem;

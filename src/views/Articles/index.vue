@@ -8,7 +8,7 @@
       <div class="wap-left left">
         <mu-card @click="goDetail(item)" class="card" v-for="item in info.list" :key="item._id">
           <div class="cover">
-            <img class="cover-img" v-lazy="item.cover">
+            <img class="cover-img" :src="item.cover">
           </div>
           <div class="card-box">
             <div class="title">{{ item.title }}</div>

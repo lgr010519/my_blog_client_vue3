@@ -157,61 +157,61 @@ const goDetail = () => {
 	router.push('/user')
 }
 </script>
+
 <template>
 	<div class="header">
 		<el-menu :color="props.background">
 			<el-avatar :src="userInfo?userInfo.avatar:avatarBg" :size="40" class="header-avatar" @click="goDetail"/>
-			<div class="flex-grow"/>
 			<!--       tab栏-->
-			<el-button @click="go(item)" class="tab" v-for="(item,index) in info.menu"
-			           :key="item.name"
-			           :color="props.lightIndex===index?'#2195f2':''">
-				<el-icon size="16" :value="item.icon"></el-icon>
-				{{ item.name }}
-			</el-button>
-			<!--       主题切换-->
-			<el-button ref="theme" @click="openTheme = !openTheme">
-				<el-icon value="color_lens"></el-icon>
-			</el-button>
-			<el-dropdown>
-				<div class="el-dropdown-link">
-					<el-icon v-if="currentTheme === 'selfLight'" :color="currentTheme === 'selfLight' ? 'primary' : ''">
-						<Sunny/>
-					</el-icon>
-					<el-icon v-else :color="currentTheme === 'selfDark' ? 'primary' : ''">
-						<Moon/>
-					</el-icon>
-				</div>
-				<template #dropdown>
-					<el-dropdown-menu>
-						<el-dropdown-item @click="toggleTheme('selfLight')">
+			<div class="buttonGroup">
+				<el-button @click="go(item)" class="tab" v-for="(item,index) in info.menu"
+				           :key="item.name"
+				           :color="props.lightIndex===index?'#2195f2':''">
+					<el-icon size="16" :value="item.icon"></el-icon>
+					{{ item.name }}
+				</el-button>
+				<!--       主题切换-->
+				<el-dropdown size="large">
+					<el-button class="el-dropdown-link">
+						<el-icon v-if="currentTheme === 'selfLight'"
+						         :color="currentTheme === 'selfLight' ? 'primary' : ''">
 							<Sunny/>
-						</el-dropdown-item>
-						<el-dropdown-item @click="toggleTheme('selfDark')">
+						</el-icon>
+						<el-icon v-else :color="currentTheme === 'selfDark' ? 'primary' : ''">
 							<Moon/>
-						</el-dropdown-item>
-					</el-dropdown-menu>
-				</template>
-			</el-dropdown>
-			<!--       用户操作-->
-			<el-dropdown>
-				<div class="el-dropdown-link">
-					{{ userInfo?.nickName }}
-					<el-icon class="el-icon--right">
-						<arrow-down/>
-					</el-icon>
-				</div>
-				<template #dropdown>
-					<el-dropdown-menu>
-						<el-dropdown-item @click="router.push({name: 'user'})">
-							个人中心
-						</el-dropdown-item>
-						<el-dropdown-item @click="handleLogout">
-							退出登录
-						</el-dropdown-item>
-					</el-dropdown-menu>
-				</template>
-			</el-dropdown>
+						</el-icon>
+					</el-button>
+					<template #dropdown>
+						<el-dropdown-menu>
+							<el-dropdown-item @click="toggleTheme('selfLight')">
+								<Sunny/>
+							</el-dropdown-item>
+							<el-dropdown-item @click="toggleTheme('selfDark')">
+								<Moon/>
+							</el-dropdown-item>
+						</el-dropdown-menu>
+					</template>
+				</el-dropdown>
+				<!--       用户操作-->
+				<el-dropdown>
+					<el-button ref="user" class="el-dropdown-link" @click="openUser = !openUser">
+						{{ userInfo?.nickName }}
+						<el-icon class="el-icon--right">
+							<arrow-down/>
+						</el-icon>
+					</el-button>
+					<template #dropdown>
+						<el-dropdown-menu>
+							<el-dropdown-item @click="router.push({name: 'user'})">
+								个人中心
+							</el-dropdown-item>
+							<el-dropdown-item @click="handleLogout">
+								退出登录
+							</el-dropdown-item>
+						</el-dropdown-menu>
+					</template>
+				</el-dropdown>
+			</div>
 		</el-menu>
 		<!-- 搜索按钮 -->
 		<div class="tool" v-if="isShowAction">
@@ -242,7 +242,7 @@ const goDetail = () => {
 					<el-button
 						v-show="showToolBtn && info.openSearch"
 						@click="openSearchModal = true;showToolBtn = false;"
-						type="error"
+						type="danger"
 					>
 						搜索
 					</el-button>
@@ -283,12 +283,14 @@ const goDetail = () => {
 		</transition>
 	</div>
 </template>
+
 <style lang="less" scoped>
 .header {
 	position: fixed;
 	z-index: 1501;
 	width: 100%;
 	top: 0;
+	left: 0;
 	
 	.header-avatar {
 		margin-left: 20px;

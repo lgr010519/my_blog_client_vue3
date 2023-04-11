@@ -5,6 +5,7 @@ const props = defineProps({
 	fixed: Boolean
 })
 </script>
+
 <template>
 	<div class="footer" :class="{'fixed-footer':props.fixed}">
 		<div class="copyright">
@@ -13,6 +14,7 @@ const props = defineProps({
 		</div>
 	</div>
 </template>
+
 <style lang="less" scoped>
 .footer {
 	text-align: center;

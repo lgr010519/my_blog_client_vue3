@@ -7,7 +7,7 @@
         </mu-button>
       </mu-tooltip>
       <mu-avatar class="avatar" size="100">
-        <img v-lazy="userInfo.avatar">
+        <img :src="userInfo.avatar">
       </mu-avatar>
       <div class="title">{{userInfo.nickName}}</div>
       <div class="email">{{userInfo.email}}</div>

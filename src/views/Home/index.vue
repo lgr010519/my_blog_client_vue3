@@ -1,3 +1,43 @@
+<script lang="ts" setup>
+import IndexAnimation from "../../components/IndexAnimation.vue";
+import Header from "../../components/Header.vue";
+import {getHomeInfo} from "../../api/config";
+import {onMounted, reactive} from "vue";
+
+let i = 0;
+let timer: string | number | NodeJS.Timeout | undefined;
+const info = reactive({
+	data:{
+		welcome: "",
+		welcomeText: "",
+	}
+})
+
+onMounted(()=>{
+	handleGetHomeInfo().then(() => {
+		typing();
+	})
+})
+
+// 打字机效果
+const typing = () => {
+	if (i <= info.data.welcomeText.length) {
+		info.data.welcome = info.data.welcomeText.slice(0, i++) + "_";
+		timer = setTimeout(typing, 100);
+	} else {
+		info.data.welcome = info.data.welcomeText; //结束打字,移除 _ 光标
+		clearTimeout(timer);
+	}
+}
+
+const handleGetHomeInfo=async () => {
+	const res:any = await getHomeInfo()
+	if (res.code === 200) {
+		info.data.welcomeText = res.data.introduction
+	}
+}
+</script>
+
 <template>
   <div>
     <IndexAnimation></IndexAnimation>
@@ -9,53 +49,6 @@
     </div>
   </div>
 </template>
-
-<script>
-    import IndexAnimation from "../../components/IndexAnimation.vue";
-    import Header from "../../components/Header.vue";
-    import {getHomeInfo} from "../../api/config.ts";
-
-    let i = 0;
-    let timer = null;
-    export default {
-        name: "home",
-        components: {
-            IndexAnimation,
-            Header,
-        },
-        data() {
-            return {
-                info: {
-                    welcome: "",
-                    welcomeText: "",
-                },
-            };
-        },
-        mounted() {
-            this.getHomeInfo().then(() => {
-                this.typing();
-            })
-        },
-        methods: {
-            // 打字机效果
-            typing() {
-                if (i <= this.info.welcomeText.length) {
-                    this.info.welcome = this.info.welcomeText.slice(0, i++) + "_";
-                    timer = setTimeout(this.typing, 100);
-                } else {
-                    this.info.welcome = this.info.welcomeText; //结束打字,移除 _ 光标
-                    clearTimeout(timer);
-                }
-            },
-            async getHomeInfo() {
-                const res = await getHomeInfo()
-                if (res.code === 200) {
-                    this.info.welcomeText = res.data.introduction
-                }
-            }
-        },
-    };
-</script>
 
 <style scoped lang="less">
   .home {
