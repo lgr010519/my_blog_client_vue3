@@ -65,7 +65,7 @@ const goDetail = (item: { _id: any; }) => {
 	});
 }
 
-watch(() => openModal, (newVal) => {
+watch(() => props.open, (newVal) => {
 	if (newVal) {
 		handleSearch()
 	}
@@ -74,7 +74,7 @@ watch(() => openModal, (newVal) => {
 
 <template>
 	<div>
-		<el-dialog width="60%" :open.sync="openModal">
+		<el-dialog width="60%" v-model="props.open">
 			<slot name="title">
 				<el-input
 					:suffix-icon="Search"

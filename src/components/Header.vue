@@ -7,49 +7,60 @@ import {computed, defineProps, onMounted, reactive, ref} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {ElMessage} from "element-plus";
 import avatarBg from '../assets/avatarBg.png'
+import {HomeFilled, Document, Files, Operation, Promotion, Avatar} from '@element-plus/icons-vue'
+import {useDark, useToggle} from '@vueuse/core'
 
 const route = useRoute()
 const router = useRouter()
-const menus = [
+
+const isDark = useDark({
+	// 存储到localStorage/sessionStorage中的Key 根据自己的需求更改
+	storageKey: 'theme',
+	// 暗黑class名字
+	valueDark: 'dark',
+	// 高亮class名字
+	valueLight: 'light',
+})
+const toggle = useToggle(isDark)
+
+const menus = reactive([
 	{
 		name: "首页",
 		router: "home",
-		icon: "home",
+		icon: HomeFilled,
 	},
 	{
 		name: "文章",
 		router: "articles",
-		icon: "note_add",
+		icon: Document,
 	},
 	{
 		name: "归档",
 		router: "archives",
-		icon: "drafts",
+		icon: Files,
 	},
 	{
 		name: "分类",
 		router: "categories",
-		icon: "dns",
+		icon: Operation,
 	},
 	{
 		name: "标签",
 		router: "tags",
-		icon: "loyalty",
+		icon: Promotion,
 	},
 	{
 		name: "关于",
 		router: "about",
-		icon: "perm_identity",
+		icon: Avatar,
 	},
-]
+])
 const props = defineProps({
 	lightIndex: Number,
 	background: String
 })
 const openUser = ref(false)
 const openTheme = ref(false)
-const triggerUser = ref(null)
-const triggerTheme = ref(null)
 const info = reactive({
 	menu: menus,
 	login: true, // 是否开启登录
@@ -61,9 +72,7 @@ const openSearchModal = ref(false)
 const openLoginModal = ref(false)
 const openRegisterModal = ref(false)
 const showBackTop = ref(false)
-const currentTheme = ref('')
-const theme = ref(null)
-const user = ref(null)
+const currentTheme = ref(localStorage.getItem('theme'))
 const userInfo = JSON.parse(localStorage.getItem("userInfo")) // 用户信息
 const isShowAction = computed(() => {
 	return !(
@@ -75,8 +84,6 @@ const isShowAction = computed(() => {
 
 onMounted(() => {
 	showToolBtn.value = !userInfo
-	triggerTheme.value = theme.$el;
-	triggerUser.value = user.$el;
 	window.onscroll = () => {
 		showBackTop.value = document.documentElement.scrollTop + document.body.scrollTop > 100;
 	}
@@ -86,14 +93,6 @@ onMounted(() => {
 			openSearchModal.value = true
 		}
 	}
-	const hours = new Date().getHours()
-	let defaultTheme = ''
-	if (hours >= 8 && hours <= 18) {
-		defaultTheme = 'selfLight'
-	} else {
-		defaultTheme = 'selfDark'
-	}
-	currentTheme.value = localStorage.getItem('theme') || defaultTheme
 })
 
 // 路由跳转
@@ -125,9 +124,12 @@ const scrollTop = () => {
 }
 
 const toggleTheme = (myTheme) => {
-	theme.value.use(myTheme)
 	currentTheme.value = myTheme
-	localStorage.setItem('theme', myTheme)
+	if (myTheme === 'light') {
+		toggle(false)
+	} else {
+		toggle(true)
+	}
 	openTheme.value = false
 }
 
@@ -160,40 +162,44 @@ const goDetail = () => {
 	<div class="header">
 		<el-menu class="header-menu" :background-color="props.background">
 			<el-avatar :src="userInfo?userInfo.avatar:avatarBg" :size="40" class="header-avatar" @click="goDetail"/>
-			<div style="display: inline-block;"></div>
 			<!--       tab栏-->
 			<div class="button-group">
 				<el-button link @click="go(item)" class="tab" v-for="(item,index) in info.menu"
 				           :key="item.name"
 				           :type="props.lightIndex===index?'primary':''">
-					<el-icon size="16" :value="item.icon"></el-icon>
+					<el-icon size="16" style="margin-right: 4px;">
+						<component :is="item.icon"/>
+					</el-icon>
 					{{ item.name }}
 				</el-button>
 				<!--       主题切换-->
 				<el-dropdown size="large" class="header-dropdown">
 					<el-button link class="el-dropdown-link">
-						<el-icon v-if="currentTheme === 'selfLight'"
-						         :color="currentTheme === 'selfLight' ? 'primary' : ''">
+						<el-icon size="18" v-if="currentTheme === 'light'">
 							<Sunny/>
 						</el-icon>
-						<el-icon v-else :color="currentTheme === 'selfDark' ? 'primary' : ''">
+						<el-icon size="18" v-else>
 							<Moon/>
 						</el-icon>
 					</el-button>
 					<template #dropdown>
 						<el-dropdown-menu>
-							<el-dropdown-item @click="toggleTheme('selfLight')">
-								<Sunny/>
+							<el-dropdown-item @click="toggleTheme('light')">
+								<el-icon size="16" :color="currentTheme === 'light' ? 'rgb(64,158,255)' : ''">
+									<Sunny/>
+								</el-icon>
 							</el-dropdown-item>
-							<el-dropdown-item @click="toggleTheme('selfDark')">
-								<Moon/>
+							<el-dropdown-item @click="toggleTheme('auto')">
+								<el-icon size="16" :color="currentTheme === 'auto' ? 'rgb(64,158,255)' : ''">
+									<Moon/>
+								</el-icon>
 							</el-dropdown-item>
 						</el-dropdown-menu>
 					</template>
 				</el-dropdown>
 				<!--       用户操作-->
-				<el-dropdown class="header-dropdown">
-					<el-button link ref="user" class="el-dropdown-link" @click="openUser = !openUser">
+				<el-dropdown class="header-dropdown" v-if="userInfo">
+					<el-button link class="el-dropdown-link" @click="openUser = !openUser">
 						{{ userInfo?.nickName }}
 						<el-icon class="el-icon--right">
 							<arrow-down/>
@@ -234,7 +240,9 @@ const goDetail = () => {
 						@click="showToolBtn = !showToolBtn"
 						type="primary"
 					>
-						<el-icon size="30"><SwitchFilled /></el-icon>
+						<el-icon size="30">
+							<SwitchFilled/>
+						</el-icon>
 					</el-button>
 				</el-tooltip>
 				<transition name="fade">
@@ -300,8 +308,7 @@ const goDetail = () => {
 		justify-content: space-between;
 		align-items: center;
 		border: 0;
-		//background-color: #f5f5f5;
-		//color: rgba(0, 0, 0, 0.87);
+		box-shadow: 0 2px 4px -1px rgb(0 0 0 / 20%), 0 4px 5px 0 rgb(0 0 0 / 14%), 0 1px 10px 0 rgb(0 0 0 / 12%);
 	}
 	
 	.button-group {
@@ -315,7 +322,7 @@ const goDetail = () => {
 		
 		.header-dropdown {
 			height: 64px;
-			padding: 0 12px;
+			padding: 0 8px;
 		}
 	}
 	
@@ -342,7 +349,7 @@ const goDetail = () => {
 		margin-top: 20px;
 		height: 60px;
 		
-		.tool-button{
+		.tool-button {
 			width: 60px;
 			height: 60px;
 			border-radius: 50%;

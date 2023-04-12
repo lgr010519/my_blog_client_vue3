@@ -8,6 +8,7 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import VueLazyload from "vue-lazyload";
 import mavonEditor from 'mavon-editor'
 import 'mavon-editor/dist/css/index.css'
+import 'element-plus/theme-chalk/dark/css-vars.css'
 
 const Vue = createApp(App)
 

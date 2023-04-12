@@ -3,6 +3,8 @@ import {getArticles} from "../../api/articles";
 import moment from "moment"
 import {onMounted, ref} from "vue";
 import {useRouter} from "vue-router";
+import Header from '../../components/Header.vue'
+import RightConfig from '../../components/RightConfig.vue'
 
 const router = useRouter()
 
@@ -63,42 +65,46 @@ const pageChange = (pg: number) => {
 				<RightConfig></RightConfig>
 			</div>
 			<div class="wap-left left">
-				<mu-card @click="goDetail(item)" class="card" v-for="item in info.list" :key="item._id">
+				<el-card @click="goDetail(item)" class="card" v-for="item in info.list" :key="item._id">
 					<div class="cover">
 						<img class="cover-img" :src="item.cover">
 					</div>
 					<div class="card-box">
 						<div class="title">{{ item.title }}</div>
-						<mu-card-actions class="sub-title">
-							<mu-button class="cursor-default" flat color="rgb(154,205,50)">查看（{{ item.views }}）
-							</mu-button>
-							<mu-button class="cursor-default" flat color="rgb(33,150,243)" v-if="item.isLike">
+						<div class="sub-title">
+							<el-button class="cursor-default" text color="rgb(154,205,50)">查看（{{ item.views }}）
+							</el-button>
+							<el-button class="cursor-default" text color="rgb(33,150,243)" v-if="item.isLike">
 								点赞（{{ item.like }}）
-							</mu-button>
-							<mu-button class="cursor-default" flat color="rgb(156,39,176)" v-if="item.isCollect">
+							</el-button>
+							<el-button class="cursor-default" text color="rgb(156,39,176)" v-if="item.isCollect">
 								收藏（{{ item.collect }}）
-							</mu-button>
-							<mu-button class="cursor-default" flat color="rgb(244,67,54)" v-if="item.isComment">
+							</el-button>
+							<el-button class="cursor-default" text color="rgb(244,67,54)" v-if="item.isComment">
 								评论（{{ item.comment }}）
-							</mu-button>
-							<mu-button class="cursor-default" flat color="#9e9e9e">{{ item.createTime }}</mu-button>
-						</mu-card-actions>
-						<mu-card-text class="text">
+							</el-button>
+							<el-button class="cursor-default" text color="#9e9e9e">{{ item.createTime }}</el-button>
+						</div>
+						<div class="text">
 							{{ item.introduction }}
-						</mu-card-text>
-						<mu-card-actions>
-							<mu-button class="cursor-default chip" flat color="primary">
-								<mu-icon left value="dns"></mu-icon>
+						</div>
+						<div>
+							<el-button class="cursor-default chip" text type="primary">
+								<el-icon>
+									<Operation/>
+								</el-icon>
 								{{ item.categories }}
-							</mu-button>
+							</el-button>
 							<br/>
-							<mu-button v-for="sub in item.tags" :key="sub" class="cursor-default chip" flat>
-								<mu-icon left value="loyalty"></mu-icon>
+							<el-button v-for="sub in item.tags" :key="sub" class="cursor-default chip" text>
+								<el-icon>
+									<Promotion/>
+								</el-icon>
 								{{ sub }}
-							</mu-button>
-						</mu-card-actions>
+							</el-button>
+						</div>
 					</div>
-				</mu-card>
+				</el-card>
 			</div>
 		</div>
 		<div v-if="info.totalCount > info.pageSize" class="pagination">
@@ -149,6 +155,7 @@ const pageChange = (pg: number) => {
 				}
 				
 				.title {
+					display: inline-block;
 					padding: 0.42667rem 0.42667rem 0 0.42667rem;
 					font-size: 0.4rem;
 					overflow: hidden;
@@ -178,6 +185,7 @@ const pageChange = (pg: number) => {
 				}
 				
 				.cover {
+					display: inline-block;
 					flex: 1;
 					border-radius: 0;
 					padding: 0.42667rem;
@@ -238,7 +246,11 @@ const pageChange = (pg: number) => {
 	}
 }
 
-/deep/ .mu-button-wrapper {
+:deep(.mu-button-wrapper) {
 	text-transform: lowercase;
+}
+
+:deep(.el-card__body) {
+	padding: 0;
 }
 </style>
