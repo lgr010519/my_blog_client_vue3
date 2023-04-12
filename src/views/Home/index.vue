@@ -41,7 +41,7 @@ const handleGetHomeInfo=async () => {
 <template>
   <div>
     <IndexAnimation></IndexAnimation>
-    <Header background="transparent"></Header>
+    <Header :lightIndex="0" background="transparent"></Header>
     <div class="common">
       <div class="home">
         {{ info.welcome }}

@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script setup>
 import RegisterForm from "../components/RegisterForm.vue";
 import LoginForm from "../components/LoginForm.vue";
 import SearchForm from "../components/SearchForm.vue";
@@ -6,6 +6,7 @@ import {logout} from "../api/loginRegister";
 import {computed, defineProps, onMounted, reactive, ref} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {ElMessage} from "element-plus";
+import avatarBg from '../assets/avatarBg.png'
 
 const route = useRoute()
 const router = useRouter()
@@ -47,9 +48,7 @@ const props = defineProps({
 })
 const openUser = ref(false)
 const openTheme = ref(false)
-const openMobileMenu = ref(false)
 const triggerUser = ref(null)
-const trigger = ref(null)
 const triggerTheme = ref(null)
 const info = reactive({
 	menu: menus,
@@ -65,7 +64,6 @@ const showBackTop = ref(false)
 const currentTheme = ref('')
 const theme = ref(null)
 const user = ref(null)
-const avatarBg = '../../assets/avatarBg.png'
 const userInfo = JSON.parse(localStorage.getItem("userInfo")) // 用户信息
 const isShowAction = computed(() => {
 	return !(
@@ -99,7 +97,7 @@ onMounted(() => {
 })
 
 // 路由跳转
-const go = (item: { router: any; }) => {
+const go = (item) => {
 	// 点击相同路由不跳转
 	if (route.name === item.router) return
 	router.push({
@@ -107,15 +105,15 @@ const go = (item: { router: any; }) => {
 	})
 }
 
-const toggleRegisterModal = (bool: boolean) => {
+const toggleRegisterModal = (bool) => {
 	openRegisterModal.value = bool;
 }
 
-const toggleLoginModal = (bool: boolean) => {
+const toggleLoginModal = (bool) => {
 	openLoginModal.value = bool;
 }
 
-const toggleSearchModal = (bool: boolean) => {
+const toggleSearchModal = (bool) => {
 	openSearchModal.value = bool;
 }
 
@@ -126,7 +124,7 @@ const scrollTop = () => {
 	})
 }
 
-const toggleTheme = (myTheme: string) => {
+const toggleTheme = (myTheme) => {
 	theme.value.use(myTheme)
 	currentTheme.value = myTheme
 	localStorage.setItem('theme', myTheme)
@@ -134,7 +132,7 @@ const toggleTheme = (myTheme: string) => {
 }
 
 const handleLogout = async () => {
-	const res: any = await logout()
+	const res = await logout()
 	if (res.code === 200) {
 		ElMessage({
 			message: res.msg,
@@ -160,19 +158,20 @@ const goDetail = () => {
 
 <template>
 	<div class="header">
-		<el-menu :color="props.background">
+		<el-menu class="header-menu" :background-color="props.background">
 			<el-avatar :src="userInfo?userInfo.avatar:avatarBg" :size="40" class="header-avatar" @click="goDetail"/>
+			<div style="display: inline-block;"></div>
 			<!--       tab栏-->
-			<div class="buttonGroup">
-				<el-button @click="go(item)" class="tab" v-for="(item,index) in info.menu"
+			<div class="button-group">
+				<el-button link @click="go(item)" class="tab" v-for="(item,index) in info.menu"
 				           :key="item.name"
-				           :color="props.lightIndex===index?'#2195f2':''">
+				           :type="props.lightIndex===index?'primary':''">
 					<el-icon size="16" :value="item.icon"></el-icon>
 					{{ item.name }}
 				</el-button>
 				<!--       主题切换-->
-				<el-dropdown size="large">
-					<el-button class="el-dropdown-link">
+				<el-dropdown size="large" class="header-dropdown">
+					<el-button link class="el-dropdown-link">
 						<el-icon v-if="currentTheme === 'selfLight'"
 						         :color="currentTheme === 'selfLight' ? 'primary' : ''">
 							<Sunny/>
@@ -193,8 +192,8 @@ const goDetail = () => {
 					</template>
 				</el-dropdown>
 				<!--       用户操作-->
-				<el-dropdown>
-					<el-button ref="user" class="el-dropdown-link" @click="openUser = !openUser">
+				<el-dropdown class="header-dropdown">
+					<el-button link ref="user" class="el-dropdown-link" @click="openUser = !openUser">
 						{{ userInfo?.nickName }}
 						<el-icon class="el-icon--right">
 							<arrow-down/>
@@ -217,12 +216,12 @@ const goDetail = () => {
 		<div class="tool" v-if="isShowAction">
 			<!-- 如果用户已经登录了那就不展示登录和注册按钮 !userInfo 控制 -->
 			<div v-if="info.login && !userInfo" class="tool-row">
-				<transition>
+				<transition name="fade">
 					<el-button
+						class="tool-button"
 						v-show="showToolBtn"
 						@click="openLoginModal = true;showToolBtn = false;"
 						type="primary"
-						circle
 					>
 						登录
 					</el-button>
@@ -231,15 +230,16 @@ const goDetail = () => {
 			<div class="tool-row">
 				<el-tooltip placement="right" :content="userInfo?'搜索 (Ctrl + F)':'登录 / 注册 / 搜索 (Ctrl + F)'">
 					<el-button
+						class="tool-button search-fab"
 						@click="showToolBtn = !showToolBtn"
-						type="info"
-						class="search-fab"
+						type="primary"
 					>
-						<Search/>
+						<el-icon size="30"><SwitchFilled /></el-icon>
 					</el-button>
 				</el-tooltip>
-				<transition>
+				<transition name="fade">
 					<el-button
+						class="tool-button"
 						v-show="showToolBtn && info.openSearch"
 						@click="openSearchModal = true;showToolBtn = false;"
 						type="danger"
@@ -250,8 +250,9 @@ const goDetail = () => {
 			</div>
 			<!-- 如果用户已经登录了那就不展示登录和注册按钮 !userInfo 控制 -->
 			<div v-if="info.register && !userInfo" class="tool-row">
-				<transition>
+				<transition name="fade">
 					<el-button
+						class="tool-button"
 						v-show="showToolBtn"
 						@click="openRegisterModal = true;showToolBtn = false;"
 						type="warning"
@@ -288,11 +289,38 @@ const goDetail = () => {
 .header {
 	position: fixed;
 	z-index: 1501;
-	width: 100%;
 	top: 0;
 	left: 0;
+	width: 100%;
+	
+	.header-menu {
+		width: 100%;
+		height: 64px;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		border: 0;
+		//background-color: #f5f5f5;
+		//color: rgba(0, 0, 0, 0.87);
+	}
+	
+	.button-group {
+		display: inline-block;
+		float: right;
+		
+		.tab {
+			height: 64px;
+			padding: 0 8px;
+		}
+		
+		.header-dropdown {
+			height: 64px;
+			padding: 0 12px;
+		}
+	}
 	
 	.header-avatar {
+		float: left;
 		margin-left: 20px;
 		cursor: pointer;
 		transform: scale(1.0);
@@ -312,11 +340,16 @@ const goDetail = () => {
 	
 	.tool-row {
 		margin-top: 20px;
-		height: 56px;
+		height: 60px;
+		
+		.tool-button{
+			width: 60px;
+			height: 60px;
+			border-radius: 50%;
+		}
 		
 		.search-fab {
-			margin-left: -28px;
-			margin-right: 20px;
+			margin-left: -30px;
 		}
 	}
 }
@@ -353,5 +386,24 @@ const goDetail = () => {
 	color: var(--el-color-primary);
 	display: flex;
 	align-items: center;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+	/*定义进入开始和离开结束的透明度为0*/
+	opacity: 0;
+	transform: translateX(-100px);
+}
+
+.fade-enter-to,
+.fade-leave-from {
+	/*定义进入结束和离开开始的透明度为1*/
+	opacity: 1;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+	/*定义进入和离开过渡状态的透明度变化的时间和变化曲线*/
+	transition: all .3s;
 }
 </style>

@@ -1,29 +1,15 @@
 <script lang="ts" setup>
 import {login, getCaptcha} from "../api/loginRegister";
 import {defineEmits, defineProps, reactive, ref, watch} from "vue";
-import {ElMessage, FormInstance} from "element-plus";
+import {ElMessage, FormInstance, FormRules} from "element-plus";
 
 const props = defineProps({
-	open: {
-		type: Boolean,
-		default: false
-	},
-	close: {
-		type: Function,
-		default: () => {
-		},
-	},
-	ok: {
-		type: Function,
-		default: () => {
-		}
-	}
+	open: Boolean
 })
 
 const emit = defineEmits(["toggle"])
 
 const form = ref()
-const openDialog = ref(props.open)
 const captcha = ref('')
 const captchaText = ref('')
 const validateForm = reactive({
@@ -37,21 +23,36 @@ const validateForm = reactive({
 	}
 })
 
-const emailRules = [
-	{validate: (val: any) => !!val, message: "请输入邮箱"},
-	{
-		validate: (val: string) => {
-			let reg = /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
-			return reg.test(val);
+const rules = reactive<FormRules>({
+	email: [
+		{required: true, message: "请输入邮箱", trigger: 'blur'},
+		{
+			validator: (rule: any, value: any, callback: any) => {
+				const reg = /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
+				if (!reg.test(value)) {
+					callback(new Error('邮箱格式不正确'))
+				} else {
+					callback()
+				}
+			},
+			trigger: 'blur'
 		},
-		message: "邮箱格式不正确",
-	},
-]
-const passwordRules = [{validate: (val: any) => !!val, message: "请输入密码"}]
-const captchaRules = [
-	{validate: (val: any) => !!val, message: "请输入验证码"},
-	{validate: (val: string) => val.toLowerCase() === captchaText.value, message: "验证码错误"},
-]
+	],
+	password: [{required: true, message: "请输入密码", trigger: 'blur'}],
+	captcha: [
+		{required: true, message: "请输入验证码", trigger: 'blur'},
+		{
+			validator: (rule: any, value: any, callback: any) => {
+				if (value.toLowerCase() !== captchaText.value) {
+					callback(new Error('验证码错误'))
+				} else {
+					callback()
+				}
+			},
+			trigger: 'blur'
+		},
+	],
+})
 
 const handleGetCaptcha = async () => {
 	const res: any = await getCaptcha()
@@ -114,20 +115,24 @@ watch(() => props.open, (newVal) => {
 		<el-dialog
 			title="登录"
 			width="500"
-			max-width="90%"
-			v-model="openDialog"
+			v-model="props.open"
+			:close-on-click-modal="false"
+			:show-close="false"
+			center
 		>
-			<el-form ref="form" :model="validateForm.data" label-width="60">
-				<el-form-item label="邮箱" prop="email" :rules="emailRules">
+			<el-form ref="form" :model="validateForm.data" label-width="70" :rules="rules">
+				<el-form-item label="邮箱" prop="email">
 					<el-input placeholder="请输入邮箱" v-model.trim="validateForm.data.email" prop="email"></el-input>
 				</el-form-item>
-				<el-form-item label="密码" prop="password" :rules="passwordRules">
+				<el-form-item label="密码" prop="password">
 					<el-input placeholder="请输入密码" v-model.trim="validateForm.data.password" type="password"
-					          prop="password"></el-input>
+					          prop="password" show-password></el-input>
 				</el-form-item>
-				<el-form-item label="验证码" prop="captcha" :rules="captchaRules">
+				<el-form-item label="验证码" prop="captcha">
 					<el-input placeholder="请输入验证码" v-model.trim="validateForm.data.captcha" prop="captcha">
-						<div @click="handleGetCaptcha" class="captcha" v-html="captcha"></div>
+						<template #suffix>
+							<div @click="handleGetCaptcha" class="captcha" v-html="captcha"></div>
+						</template>
 					</el-input>
 				</el-form-item>
 			</el-form>
@@ -144,6 +149,7 @@ watch(() => props.open, (newVal) => {
 <style lang="less" scoped>
 .captcha {
 	cursor: pointer;
+	margin-right: -10px;
 	
 	/deep/ svg {
 		vertical-align: middle;
